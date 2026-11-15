@@ -1,13 +1,11 @@
 public class VisibilityDemo {
-
-    // Некорректный вариант
     static class Broken {
-        static boolean running = true;         // НЕ volatile
+        static boolean running = true;
 
         static void run() throws Exception {
             Thread worker = new Thread(() -> {
                 long n = 0;
-                while (running) n++;           // может закешировать running
+                while (running) n++;
                 System.out.println("[Broken] worker stopped, n=" + n);
             });
             worker.setDaemon(true);
@@ -18,11 +16,8 @@ public class VisibilityDemo {
             System.out.println("[Broken] alive after stop = " + worker.isAlive());
         }
     }
-
-    // Исправление через volatile
     static class VolatileFix {
-        static volatile boolean running = true; // видимость гарантирована
-
+        static volatile boolean running = true;
         static void run() throws Exception {
             Thread worker = new Thread(() -> {
                 long n = 0;
@@ -37,15 +32,11 @@ public class VisibilityDemo {
             System.out.println("[Volatile] alive after stop = " + worker.isAlive());
         }
     }
-
-    // Исправление через синхронизацию
     static class SyncFix {
         private static final Object lock = new Object();
         private static boolean running = true;
-
         static boolean isRunning() { synchronized (lock) { return running; } }
         static void stop()          { synchronized (lock) { running = false; } }
-
         static void run() throws Exception {
             Thread worker = new Thread(() -> {
                 long n = 0;
@@ -60,7 +51,6 @@ public class VisibilityDemo {
             System.out.println("[Sync] alive after stop = " + worker.isAlive());
         }
     }
-
     public static void main(String[] args) throws Exception {
         Broken.run();
         VolatileFix.run();
